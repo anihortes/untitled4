@@ -13,10 +13,11 @@
 #include "llnode.h"    // For LLNode
 #include <cstddef>     // For std::size_t
 #include <functional>  // For std::function
-#include <algorithm>   // For std::sort
+#include <algorithm>   // For std::sort, std::unique, std::distance
 #include <iostream>
-using std::cout;
-using std::endl;
+// if iostream is not included,
+// "'out_of_range' may be undeclared or unknown" warning is thrown
+// on lines 32 and 42
 
 // linked list template
 // is given pointer in array and an index to look for
@@ -27,7 +28,7 @@ ValueType lookup(const LLNode<ValueType> * head,
     auto count = 0;
     // checks if the index is not in range
     if(index < 0)
-        throw std::out_of_range("bad index");
+        throw std::out_of_range("bad index. index < array size.");
 
     // get size of the array
     while(ptr != nullptr){
@@ -37,12 +38,12 @@ ValueType lookup(const LLNode<ValueType> * head,
 
 // with the size known, checks again if the index is not in range
     if(index >= count)
-        throw std::out_of_range("bad index");
+        throw std::out_of_range("bad index. index > array size.");
 
     ptr = head; // return iter to point to head
-    count = 0;  // reset count now that we know index is safe
+    count = 0;  // reset count now that we know the index is safe
 
-    // iterate through array, return data iter points to
+    // iterate through array, return data that iter points to
     while(ptr != nullptr){
         if(count == index) {
             return ptr->_data;
@@ -61,22 +62,14 @@ void didItThrow(const std::function<void()> & ff,
 // returns number of unique items in an array
 // first and last points to indices in an array
 template <typename RAIter>
-std::size_t uniqueCount(RAIter & first,
-                        RAIter & last) {
-    std::size_t count;
-    // check for smallest array scenarios
-    if((last - first) == 0) return 0;
-    if((last - first) == 1) return 1;
-
+std::size_t uniqueCount(const RAIter & first,
+                        const RAIter & last) {
     // after std::sort, std::unique removes all repeated items
     std::sort(first, last);
     // lst points to the last item not removed
-    auto lst = std::unique(first, last);
-    // returns distance between two iterators
-    count = std::distance(first, lst);
-    return count;
+    auto lastUnique = std::unique(first, last);
+    return lastUnique-first;
 }
-
 
 // Implementation in source file
 int gcd(int a,
